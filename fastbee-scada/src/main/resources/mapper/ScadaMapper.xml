@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fastbee.scada.mapper.ScadaMapper">
+
+    <resultMap type="com.fastbee.scada.domain.Scada" id="ScadaResult">
+        <result property="id"    column="id"    />
+        <result property="guid"    column="guid"    />
+        <result property="scadaData"    column="scada_data"    />
+        <result property="serialNumbers"    column="serial_numbers"    />
+        <result property="deviceName"    column="device_name"    />
+        <result property="isMainPage"    column="is_main_page"    />
+        <result property="pageName"    column="page_name"    />
+        <result property="pageResolution"    column="page_resolution"    />
+        <result property="isShare"    column="is_share"    />
+        <result property="shareUrl"    column="share_url"    />
+        <result property="sharePass"    column="share_pass"    />
+        <result property="pageImage"    column="page_image"    />
+        <result property="tenantId"    column="tenant_id"    />
+        <result property="tenantName"    column="tenant_name"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectScadaVo">
+        select id, guid, scada_data, serial_numbers, device_name, is_main_page, page_name, page_resolution, is_share, share_url, share_pass, page_image, tenant_id, tenant_name, create_by, create_time, update_by, update_time, del_flag from scada
+    </sql>
+
+    <select id="selectScadaList" parameterType="com.fastbee.scada.domain.Scada" resultMap="ScadaResult">
+        <include refid="selectScadaVo"/>
+        <where>
+            <if test="guid != null  and guid != ''"> and guid = #{guid}</if>
+            <if test="scadaData != null  and scadaData != ''"> and scada_data = #{scadaData}</if>
+            <if test="serialNumbers != null  and serialNumbers != ''"> and serial_numbers = #{serialNumbers}</if>
+            <if test="deviceName != null  and deviceName != ''"> and device_name like concat('%', #{deviceName}, '%')</if>
+            <if test="isMainPage != null "> and is_main_page = #{isMainPage}</if>
+            <if test="pageName != null  and pageName != ''"> and page_name like concat('%', #{pageName}, '%')</if>
+            <if test="pageResolution != null  and pageResolution != ''"> and page_resolution = #{pageResolution}</if>
+            <if test="isShare != null "> and is_share = #{isShare}</if>
+            <if test="shareUrl != null  and shareUrl != ''"> and share_url = #{shareUrl}</if>
+            <if test="sharePass != null  and sharePass != ''"> and share_pass = #{sharePass}</if>
+            <if test="pageImage != null  and pageImage != ''"> and page_image = #{pageImage}</if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+            <if test="tenantName != null  and tenantName != ''"> and tenant_name like concat('%', #{tenantName}, '%')</if>
+        </where>
+    </select>
+
+    <select id="selectScadaById" parameterType="Long" resultMap="ScadaResult">
+        <include refid="selectScadaVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectScadaByGuid" resultType="com.fastbee.scada.domain.Scada">
+        <include refid="selectScadaVo"/>
+        where guid = #{guid}
+    </select>
+
+    <select id="getStatusBySerialNumber" resultType="java.lang.Integer">
+        select status
+        from iot_device
+        where serial_number = #{serialNumber}
+    </select>
+
+    <select id="selectDeviceProductAlertCount" resultType="com.fastbee.scada.vo.ScadaStatisticVO">
+        select
+        <!--设备数量-->
+        (select count(distinct d.device_id,d.user_id)
+        from iot_device d
+        inner join iot_device_user u on u.device_id = d.device_id
+        <where>
+            <if test="userId != null and userId != 0"> and u.user_id = #{userId}</if>
+            <if test="tenantId != null and tenantId != 0"> and d.tenant_id = #{tenantId}</if>
+        </where>
+        ) as deviceCount,
+
+        <!--在线设备数量-->
+        (select count(distinct d.device_id,d.user_id)
+        from iot_device d
+        inner join iot_device_user u on u.device_id = d.device_id
+        <where>
+            d.status=3
+            <if test="userId != null and userId != 0"> and u.user_id = #{userId}</if>
+            <if test="tenantId != null and tenantId != 0"> and d.tenant_id = #{tenantId}</if>
+        </where>
+        ) as deviceOnlineCount,
+
+        (
+        <!--普通用户查询设备中的产品数量-->
+        <if test="userId != null and userId != 0">
+            select count(distinct product_id)
+            from iot_device
+            where user_id = #{userId}
+        </if>
+        <!--管理员和租户直接查询产品的数量-->
+        <if test="userId == null || userId == 0">
+            select count(product_id)
+            from iot_product
+            <where>
+                <if test="tenantId != null and tenantId != 0"> and tenant_id = #{tenantId} </if>
+            </where>
+        </if>
+        ) as productCount,
+
+        <!--告警设备数量-->
+        (select count(distinct l.serial_number)
+        from iot_alert_log l
+        left join iot_device d on l.serial_number=d.serial_number
+        left join iot_device_user u on d.device_id=u.device_id
+        <where>
+            <if test="userId != null and userId != 0"> and u.user_id = #{userId}</if>
+            <if test="tenantId != null and tenantId != 0"> and d.tenant_id = #{tenantId}</if>
+        </where>
+        ) as alertDeviceCount,
+
+        <!--离线设备数量-->
+        (select count(distinct d.device_id,d.user_id)
+        from iot_device d
+        inner join iot_device_user u on u.device_id = d.device_id
+        <where>
+            d.status=4
+            <if test="userId != null and userId != 0"> and u.user_id = #{userId}</if>
+            <if test="tenantId != null and tenantId != 0"> and d.tenant_id = #{tenantId}</if>
+        </where>
+        ) as deviceOfflineCount,
+
+        <!--告警未处理数量-->
+        (select count(distinct l.serial_number)
+        from iot_alert_log l
+        left join iot_device d on l.serial_number=d.serial_number
+        left join iot_device_user u on d.device_id=u.device_id
+        where l.status = 2
+        <if test="userId != null and userId != 0"> and u.user_id = #{userId}</if>
+        <if test="tenantId != null and tenantId != 0"> and d.tenant_id = #{tenantId}</if>
+        ) as alertNotProcessedCount,
+
+        <!--告警已处理数量-->
+        (select count(distinct l.serial_number)
+        from iot_alert_log l
+        left join iot_device d on l.serial_number=d.serial_number
+        left join iot_device_user u on d.device_id=u.device_id
+        where l.status = 3
+        <if test="userId != null and userId != 0"> and u.user_id = #{userId}</if>
+        <if test="tenantId != null and tenantId != 0"> and d.tenant_id = #{tenantId}</if>
+        ) as alertProcessedCount,
+
+        (select count(distinct alert_log_id)
+        from iot_alert_log l
+        left join iot_device d on l.serial_number=d.serial_number
+        left join iot_device_user u on d.device_id=u.device_id
+        <where>
+            <if test="userId != null and userId != 0"> and u.user_id = #{userId}</if>
+            <if test="tenantId != null and tenantId != 0"> and d.tenant_id = #{tenantId}</if>
+        </where>
+        ) as alertCount
+    </select>
+
+    <select id="listFunctionLogHistory" resultType="com.fastbee.scada.vo.ScadaHistoryModelVO">
+        select fun_value as value,
+        create_time as time,
+        identify as identity
+        from iot_function_log
+        <where>
+            <if test="serialNumber != null and serialNumber != ''">
+                and serial_number = #{serialNumber}
+            </if>
+            <if test="beginTime != null and endTime != null">
+                and create_time between #{beginTime} and #{endTime}
+            </if>
+            <if test="identifyList != null and identifyList != ''">
+                and identify in
+                <foreach collection="identifyList" item="identify" open="(" separator="," close=")">
+                    #{identify}
+                </foreach>
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="listEventLogHistory" resultType="com.fastbee.scada.vo.ScadaHistoryModelVO">
+        select log_value as value,
+        create_time as time,
+        identity as identity
+        from iot_event_log
+        <where>
+            <if test="serialNumber != null and serialNumber != ''">
+                and serial_number = #{serialNumber}
+            </if>
+            <if test="params.beginTime != null and params.beginTime != '' and params.endTime != null and params.endTime != ''">
+                and create_time between #{params.beginTime} and #{params.endTime}
+            </if>
+            <if test="identityList != null and identityList != ''">
+                and identity in
+                <foreach collection="identityList" item="identity" open="(" separator="," close=")">
+                    #{identity}
+                </foreach>
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <insert id="insertScada" parameterType="com.fastbee.scada.domain.Scada" useGeneratedKeys="true" keyProperty="id">
+        insert into scada
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="guid != null">guid,</if>
+            <if test="scadaData != null">scada_data,</if>
+            <if test="serialNumbers != null">serial_numbers,</if>
+            <if test="deviceName != null">device_name,</if>
+            <if test="isMainPage != null">is_main_page,</if>
+            <if test="pageName != null">page_name,</if>
+            <if test="pageResolution != null">page_resolution,</if>
+            <if test="isShare != null">is_share,</if>
+            <if test="shareUrl != null">share_url,</if>
+            <if test="sharePass != null">share_pass,</if>
+            <if test="pageImage != null">page_image,</if>
+            <if test="tenantId != null">tenant_id,</if>
+            <if test="tenantName != null">tenant_name,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="guid != null">#{guid},</if>
+            <if test="scadaData != null">#{scadaData},</if>
+            <if test="serialNumbers != null">#{serialNumbers},</if>
+            <if test="deviceName != null">#{deviceName},</if>
+            <if test="isMainPage != null">#{isMainPage},</if>
+            <if test="pageName != null">#{pageName},</if>
+            <if test="pageResolution != null">#{pageResolution},</if>
+            <if test="isShare != null">#{isShare},</if>
+            <if test="shareUrl != null">#{shareUrl},</if>
+            <if test="sharePass != null">#{sharePass},</if>
+            <if test="pageImage != null">#{pageImage},</if>
+            <if test="tenantId != null">#{tenantId},</if>
+            <if test="tenantName != null">#{tenantName},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateScada" parameterType="com.fastbee.scada.domain.Scada">
+        update scada
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="guid != null">guid = #{guid},</if>
+            <if test="scadaData != null">scada_data = #{scadaData},</if>
+            <if test="serialNumbers != null">serial_numbers = #{serialNumbers},</if>
+            <if test="deviceName != null">device_name = #{deviceName},</if>
+            <if test="isMainPage != null">is_main_page = #{isMainPage},</if>
+            <if test="pageName != null">page_name = #{pageName},</if>
+            <if test="pageResolution != null">page_resolution = #{pageResolution},</if>
+            <if test="isShare != null">is_share = #{isShare},</if>
+            <if test="shareUrl != null">share_url = #{shareUrl},</if>
+            <if test="sharePass != null">share_pass = #{sharePass},</if>
+            <if test="pageImage != null">page_image = #{pageImage},</if>
+            <if test="tenantId != null">tenant_id = #{tenantId},</if>
+            <if test="tenantName != null">tenant_name = #{tenantName},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteScadaById" parameterType="Long">
+        delete from scada where id = #{id}
+    </delete>
+
+    <delete id="deleteScadaByIds" parameterType="String">
+        delete from scada where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

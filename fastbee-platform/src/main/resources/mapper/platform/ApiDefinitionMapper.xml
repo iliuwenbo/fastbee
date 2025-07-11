@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fastbee.platform.mapper.ApiDefinitionMapper">
+
+    <resultMap type="com.fastbee.platform.domain.ApiDefinition" id="ApiDefinitionResult">
+        <result property="id"    column="id"    />
+        <result property="apiName"    column="api_name"    />
+        <result property="apiUrl"    column="api_url"    />
+        <result property="apiScriptId"    column="api_script_id"    />
+        <result property="apiType"    column="api_type"    />
+        <result property="method"    column="method"    />
+        <result property="requestFormat"    column="request_format"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectApiDefinitionVo">
+        select id, api_name, api_url,api_script_id, api_type, method, request_format, auto_append, del_flag, create_by, create_time, update_by, update_time, remark from api_definition
+    </sql>
+    <!-- resultMap 定义 -->
+    <resultMap id="ApiDefinitionResultMap" type="com.fastbee.platform.vo.ApiDefinitionVo">
+
+        <!-- 映射 api_definition 表的字段 -->
+        <result property="id" column="id" />
+        <result property="apiThirdPartyPlatformId" column="api_third_party_platform_id" />
+        <result property="apiName" column="api_name" />
+        <result property="apiUrl" column="api_url" />
+        <result property="apiScriptId"    column="api_script_id"    />
+        <result property="apiType" column="api_type" />
+        <result property="method" column="method" />
+        <result property="requestFormat" column="request_format" />
+        <result property="delFlag" column="del_flag" />
+        <result property="createBy" column="create_by" />
+        <result property="createTime" column="create_time" />
+        <result property="updateBy" column="update_by" />
+        <result property="updateTime" column="update_time" />
+        <result property="remark" column="remark" />
+
+        <!-- 映射 api_param_detail 表的字段到 paramDetailList -->
+        <collection property="apiParamDetailList" ofType="com.fastbee.platform.domain.ApiParamDetail">
+            <result property="id" column="apd_id" /> <!-- 这里保持 apd.id 的别名 -->
+            <result property="apiId" column="api_id" />
+            <result property="paramType" column="param_type" />
+            <result property="paramName" column="param_name" />
+            <result property="paramValue" column="param_value" />
+            <result property="required" column="required" />
+            <result property="remark" column="apd_remark" />
+            <result property="autoAppend"    column="auto_append"    />
+        </collection>
+
+        <!-- 映射 api_request_example 表的字段到 requestExample -->
+<!--        <collection property="apiRequestExample" javaType="com.fastbee.platform.domain.ApiRequestExample">-->
+<!--            <result property="id" column="are_id" /> &lt;!&ndash; 这里保持 are.id 的别名 &ndash;&gt;-->
+<!--            <result property="apiId" column="api_id" />-->
+<!--            <result property="requestExample" column="request_example" />-->
+<!--            <result property="requestHeadersExample" column="request_headers_example" />-->
+<!--            <result property="remark" column="remark" />-->
+<!--        </collection>-->
+    </resultMap>
+
+
+    <!-- 查询 API 定义，并包含关联的 API 参数详情和请求示例 -->
+    <select id="selectById" resultMap="ApiDefinitionResultMap">
+        SELECT
+        a.id,
+        a.api_name,
+        a.api_url,
+        a.api_script_id,
+        a.api_type,
+        a.method,
+        a.request_format,
+        a.del_flag,
+        a.create_by,
+        a.create_time,
+        a.update_by,
+        a.update_time,
+        a.remark,
+        apd.id AS apd_id, <!-- 这里只给 id 做别名 -->
+        apd.api_id,
+        apd.param_type,
+        apd.param_name,
+        apd.param_value,
+        apd.required,
+        apd.remark as apd_remark,
+        apd.auto_append
+        FROM
+        api_definition a
+        LEFT JOIN api_param_detail apd ON a.id = apd.api_id AND apd.del_flag = 0
+        WHERE
+        a.del_flag = 0 AND a.id = #{id}
+    </select>
+
+    <!-- 查询 API 定义，并包含关联的 API 参数详情和请求示例 -->
+    <select id="selectDetailById" resultMap="ApiDefinitionResultMap">
+        SELECT
+        a.id,
+        a.api_third_party_platform_id,
+        a.api_name,
+        a.api_url,
+        a.api_script_id,
+        a.api_type,
+        a.method,
+        a.request_format,
+        a.del_flag,
+        a.create_by,
+        a.create_time,
+        a.update_by,
+        a.update_time,
+        a.remark,
+        apd.id AS apd_id, <!-- 这里只给 id 做别名 -->
+        apd.api_id,
+        apd.param_type,
+        apd.param_name,
+        apd.param_value,
+        apd.required,
+        apd.remark as apd_remark,
+        apd.auto_append
+        FROM
+        api_definition a
+        LEFT JOIN api_param_detail apd ON a.id = apd.api_id AND apd.del_flag = 0
+        WHERE
+        a.del_flag = 0 AND a.id = #{id}
+    </select>
+
+</mapper>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fastbee.scada.mapper.ScadaModelMapper">
+    
+    <resultMap type="com.fastbee.scada.domain.ScadaModel" id="ScadaModelResult">
+        <result property="id"    column="id"    />
+        <result property="modelName"    column="model_name"    />
+        <result property="modelUrl"    column="model_url"    />
+        <result property="status"    column="status"    />
+        <result property="imageUrl"    column="image_url"    />
+        <result property="tenantId"    column="tenant_id"    />
+        <result property="tenantName"    column="tenant_name"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectScadaModelVo">
+        select id, model_name, model_url, status, image_url, tenant_id, tenant_name, create_by, create_time, update_by, update_time, del_flag from scada_model
+    </sql>
+
+    <select id="selectScadaModelList" parameterType="com.fastbee.scada.domain.ScadaModel" resultMap="ScadaModelResult">
+        <include refid="selectScadaModelVo"/>
+        <where>  
+            <if test="modelName != null  and modelName != ''"> and model_name like concat('%', #{modelName}, '%')</if>
+            <if test="modelUrl != null  and modelUrl != ''"> and model_url = #{modelUrl}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="imageUrl != null  and imageUrl != ''"> and image_url = #{imageUrl}</if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+            <if test="tenantName != null  and tenantName != ''"> and tenant_name like concat('%', #{tenantName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectScadaModelById" parameterType="Long" resultMap="ScadaModelResult">
+        <include refid="selectScadaModelVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertScadaModel" parameterType="com.fastbee.scada.domain.ScadaModel" useGeneratedKeys="true" keyProperty="id">
+        insert into scada_model
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="modelName != null">model_name,</if>
+            <if test="modelUrl != null">model_url,</if>
+            <if test="status != null">status,</if>
+            <if test="imageUrl != null">image_url,</if>
+            <if test="tenantId != null">tenant_id,</if>
+            <if test="tenantName != null">tenant_name,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="delFlag != null">del_flag,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="modelName != null">#{modelName},</if>
+            <if test="modelUrl != null">#{modelUrl},</if>
+            <if test="status != null">#{status},</if>
+            <if test="imageUrl != null">#{imageUrl},</if>
+            <if test="tenantId != null">#{tenantId},</if>
+            <if test="tenantName != null">#{tenantName},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+         </trim>
+    </insert>
+
+    <update id="updateScadaModel" parameterType="com.fastbee.scada.domain.ScadaModel">
+        update scada_model
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="modelName != null">model_name = #{modelName},</if>
+            <if test="modelUrl != null">model_url = #{modelUrl},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="imageUrl != null">image_url = #{imageUrl},</if>
+            <if test="tenantId != null">tenant_id = #{tenantId},</if>
+            <if test="tenantName != null">tenant_name = #{tenantName},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteScadaModelById" parameterType="Long">
+        delete from scada_model where id = #{id}
+    </delete>
+
+    <delete id="deleteScadaModelByIds" parameterType="String">
+        delete from scada_model where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

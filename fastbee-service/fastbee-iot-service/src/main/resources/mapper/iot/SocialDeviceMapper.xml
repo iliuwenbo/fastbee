@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fastbee.iot.mapper.SocialDeviceMapper">
+
+    <resultMap type="com.fastbee.iot.model.SocialDeviceShortOutput" id="DeviceShortResult">
+        <result property="deviceId"    column="device_id"    />
+        <result property="deviceName"    column="device_name"    />
+        <result property="productId"    column="product_id"    />
+        <result property="productName"    column="product_name"    />
+        <result property="deviceType"    column="device_type"    />
+        <result property="tenantId"    column="tenant_id"    />
+        <result property="tenantName"    column="tenant_name"    />
+        <result property="serialNumber"    column="serial_number"    />
+        <result property="firmwareVersion"    column="firmware_version"    />
+        <result property="status"    column="status"    />
+        <result property="activeTime"    column="active_time"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="rssi"    column="rssi"    />
+        <result property="isShadow"    column="is_shadow"    />
+        <result property="isSimulate"    column="is_simulate"    />
+        <result property="locationWay"    column="location_way"    />
+        <result property="thingsModelValue"    column="things_model_value"    />
+        <result property="imgUrl"    column="img_url"    />
+        <result property="isOwner"    column="is_owner"    />
+        <result property="gwDevCode" column="gw_dev_code"/>
+        <result property="subDeviceCount" column="sub_device_count"/>
+        <result property="slaveId" column="slave_id" />
+        <result property="protocolCode" column="protocol_code"/>
+        <result property="transport" column="transport" />
+        <result property="guid" column="guid" />
+    </resultMap>
+
+    <sql id="selectDeviceShortVo">
+        select device_id, device_name, product_id, product_name, tenant_id, tenant_name, serial_number, firmware_version, status,rssi,is_shadow ,is_simulate,location_way,things_model_value, active_time,img_url,slave_id from iot_device
+    </sql>
+
+    <select id="selectDeviceRunningStatusByDeviceList"  parameterType="com.fastbee.iot.domain.Device"  resultMap="DeviceShortResult">
+        select d.device_id, d.device_name, p.product_id, p.product_name,p.device_type, d.tenant_id, d.tenant_name, d.serial_number,d.gw_dev_code, d.firmware_version, d.status,d.rssi,d.is_shadow,d.is_simulate ,d.location_way,d.things_model_value, d.active_time,d.create_time, if(null = d.img_url or '' = d.img_url, p.img_url, d.img_url) as img_url,
+        case
+        when (select count(device_id) from iot_device_share du where du.device_id = d.device_id and du.user_id = #{tenantId}) then 0
+        else 1
+        end as is_owner,
+        (select count(1) from iot_device d1 where d1.gw_dev_code = d.serial_number) as sub_device_count,
+        p.protocol_code,p.transport,p.guid
+        from iot_device d
+        left join iot_product p on p.product_id=d.product_id
+        <where>
+            <if test="gwDevCode != null and gwDevCode != ''">and d.gw_dev_code = #{gwDevCode}</if>
+            <if test="deviceName != null  and deviceName != ''"> and d.device_name like concat('%', #{deviceName}, '%')</if>
+            <if test="productId != null "> and d.product_id = #{productId}</if>
+            <if test="productName != null  and productName != ''"> and d.product_name like concat('%', #{productName}, '%')</if>
+            <if test="tenantId != null "> and d.tenant_id = #{tenantId}</if>
+            <if test="tenantName != null  and tenantName != ''"> and d.tenant_name like concat('%', #{tenantName}, '%')</if>
+            <if test="serialNumber != null  and serialNumber != ''"> and d.serial_number = #{serialNumber}</if>
+            <if test="status != null "> and d.status = #{status}</if>
+            <if test="networkAddress != null  and networkAddress != ''"> and d.network_address like concat('%', #{networkAddress}, '%')</if>
+            <if test="deptId != null and deptId != 0 and showChild != null and showChild">
+                and d.tenant_id in (SELECT u.user_id FROM sys_user u
+                join sys_dept de on u.dept_id = de.dept_id
+                WHERE FIND_IN_SET(#{deptId}, de.ancestors) OR de.dept_id = #{deptId})
+            </if>
+            <if test="deptId != null and deptId != 0 and showChild != null and !showChild">
+                and d.tenant_id = (SELECT dept_user_id FROM sys_dept WHERE dept_id = #{deptId})
+            </if>
+            <if test="params.beginActiveTime != null and params.beginActiveTime != '' and params.endActiveTime != null and params.endActiveTime != ''"> and d.active_time between #{params.beginActiveTime} and #{params.endActiveTime}</if>
+        </where>
+    </select>
+</mapper>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fastbee.scada.mapper.ScadaDeviceBindMapper">
+
+    <resultMap type="com.fastbee.scada.domain.ScadaDeviceBind" id="ScadaDeviceBindResult">
+        <result property="id"    column="id"    />
+        <result property="serialNumber"    column="serial_number"    />
+        <result property="scadaGuid"    column="scada_guid"    />
+    </resultMap>
+
+    <sql id="selectScadaDeviceBindVo">
+        select id, serial_number, scada_guid from scada_device_bind
+    </sql>
+
+    <select id="selectScadaDeviceBindList" parameterType="com.fastbee.scada.domain.ScadaDeviceBind" resultMap="ScadaDeviceBindResult">
+        <include refid="selectScadaDeviceBindVo"/>
+        <where>
+            <if test="serialNumber != null  and serialNumber != ''"> and serial_number = #{serialNumber}</if>
+            <if test="scadaGuid != null  and scadaGuid != ''"> and scada_guid = #{scadaGuid}</if>
+        </where>
+    </select>
+
+    <select id="selectScadaDeviceBindById" parameterType="Long" resultMap="ScadaDeviceBindResult">
+        <include refid="selectScadaDeviceBindVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="listByGuidAndSerialNumber" resultType="com.fastbee.scada.domain.ScadaDeviceBind">
+        <include refid="selectScadaDeviceBindVo"/>
+        where scada_guid = #{scadaGuid}
+        and serial_number in
+            <foreach collection="serialNumberList" separator="," open="(" close=")" item="serialNumber">
+                #{serialNumber}
+            </foreach>
+    </select>
+
+    <select id="listDeviceSimByGuid" resultType="com.fastbee.scada.vo.ScadaBindDeviceSimVO">
+        select s.serial_number, d.device_name, d.product_id
+        from scada_device_bind s left join iot_device d on s.serial_number = d.serial_number
+        where s.scada_guid = #{guid}
+    </select>
+
+    <insert id="insertScadaDeviceBind" parameterType="com.fastbee.scada.domain.ScadaDeviceBind" useGeneratedKeys="true" keyProperty="id">
+        insert into scada_device_bind
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="serialNumber != null">serial_number,</if>
+            <if test="scadaGuid != null">scada_guid,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="serialNumber != null">#{serialNumber},</if>
+            <if test="scadaGuid != null">#{scadaGuid},</if>
+         </trim>
+    </insert>
+
+    <update id="updateScadaDeviceBind" parameterType="com.fastbee.scada.domain.ScadaDeviceBind">
+        update scada_device_bind
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="serialNumber != null">serial_number = #{serialNumber},</if>
+            <if test="scadaGuid != null">scada_guid = #{scadaGuid},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteScadaDeviceBindById" parameterType="Long">
+        delete from scada_device_bind where id = #{id}
+    </delete>
+
+    <delete id="deleteScadaDeviceBindByIds" parameterType="String">
+        delete from scada_device_bind where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

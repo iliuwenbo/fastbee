@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fastbee.scada.mapper.ScadaGalleryMapper">
+    
+    <resultMap type="com.fastbee.scada.domain.ScadaGallery" id="ScadaGalleryResult">
+        <result property="id"    column="id"    />
+        <result property="fileName"    column="file_name"    />
+        <result property="categoryName"    column="category_name"    />
+        <result property="resourceUrl"    column="resource_url"    />
+        <result property="tenantId"    column="tenant_id"    />
+        <result property="tenantName"    column="tenant_name"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectScadaGalleryVo">
+        select id, file_name, category_name, resource_url, tenant_id, tenant_name, create_by, create_time, update_by, update_time, del_flag from scada_gallery
+    </sql>
+
+    <select id="selectScadaGalleryList" parameterType="com.fastbee.scada.domain.ScadaGallery" resultMap="ScadaGalleryResult">
+        <include refid="selectScadaGalleryVo"/>
+        <where>  
+            <if test="fileName != null  and fileName != ''"> and file_name like concat('%', #{fileName}, '%')</if>
+            <if test="categoryName != null  and categoryName != ''"> and category_name like concat('%', #{categoryName}, '%')</if>
+            <if test="resourceUrl != null  and resourceUrl != ''"> and resource_url = #{resourceUrl}</if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+            <if test="tenantName != null  and tenantName != ''"> and tenant_name like concat('%', #{tenantName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectScadaGalleryById" parameterType="Long" resultMap="ScadaGalleryResult">
+        <include refid="selectScadaGalleryVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectScadaGalleryByIdSet" parameterType="java.util.Set" resultMap="ScadaGalleryResult">
+        <include refid="selectScadaGalleryVo"/>
+        <where>
+            id in
+            <foreach collection="collection" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </where>
+    </select>
+
+    <insert id="insertScadaGallery" parameterType="com.fastbee.scada.domain.ScadaGallery" useGeneratedKeys="true" keyProperty="id">
+        insert into scada_gallery
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="fileName != null">file_name,</if>
+            <if test="categoryName != null">category_name,</if>
+            <if test="resourceUrl != null">resource_url,</if>
+            <if test="tenantId != null">tenant_id,</if>
+            <if test="tenantName != null">tenant_name,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="delFlag != null">del_flag,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="fileName != null">#{fileName},</if>
+            <if test="categoryName != null">#{categoryName},</if>
+            <if test="resourceUrl != null">#{resourceUrl},</if>
+            <if test="tenantId != null">#{tenantId},</if>
+            <if test="tenantName != null">#{tenantName},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+         </trim>
+    </insert>
+
+    <update id="updateScadaGallery" parameterType="com.fastbee.scada.domain.ScadaGallery">
+        update scada_gallery
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="fileName != null">file_name = #{fileName},</if>
+            <if test="categoryName != null">category_name = #{categoryName},</if>
+            <if test="resourceUrl != null">resource_url = #{resourceUrl},</if>
+            <if test="tenantId != null">tenant_id = #{tenantId},</if>
+            <if test="tenantName != null">tenant_name = #{tenantName},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteScadaGalleryById" parameterType="Long">
+        delete from scada_gallery where id = #{id}
+    </delete>
+
+    <delete id="deleteScadaGalleryByIds" parameterType="String">
+        delete from scada_gallery where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

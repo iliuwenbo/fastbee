@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fastbee.platform.mapper.ApiParamDetailMapper">
+
+    <resultMap type="com.fastbee.platform.domain.ApiParamDetail" id="ApiParamDetailResult">
+        <result property="id"    column="id"    />
+        <result property="apiId"    column="api_id"    />
+        <result property="paramType"    column="param_type"    />
+        <result property="paramName"    column="param_name"    />
+        <result property="paramValue"    column="param_value"    />
+        <result property="required"    column="required"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectApiParamDetailVo">
+        select id, api_id, param_type, param_name, param_value, required, del_flag, create_by, create_time, update_by, update_time, remark from api_param_detail
+    </sql>
+    <delete id="deleteApiDetailId">
+        delete from api_param_detail WHERE api_id = #{apiId}
+    </delete>
+
+</mapper>

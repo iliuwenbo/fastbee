@@ -1,0 +1,33 @@
+server:
+  # 可以在启动命令中通过 java -jar -Dserver.port指定参数，请勿在nacos中配置该参数，nacos中优先级最高
+  port: 39000
+unifast:
+  swagger-enabled: false
+spring:
+  application:
+    name: iot
+  jackson:
+    #日期格式化
+    date-format: yyyy-MM-dd HH:mm:ss
+  main:
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
+  cloud:
+    nacos:
+      discovery:
+        ip: ${NACOS_SERVER_IP:192.168.50.29}  # 替换为你指定的 IP 地址
+        server-addr: ${NACOS_SERVER_ADDR:192.168.0.247:18848}
+        namespace: ${NACOS_DISCOVERY_NAMESPACE:lwb}
+        group: ${NACOS_DISCOVERY_GROUP:DEFAULT_GROUP}
+        cluster-name: ${NACOS_DISCOVERY_CLUSTER_NAME:DEFAULT}
+        username: ${NACOS_DISCOVERY_USERNAME:nacos}
+        password: ${NACOS_DISCOVERY_PASSWORD:nacos}
+      config:
+        prefix: ${NACOS_CONFIG_PREFIX:iot} #dataid
+        file-extension: ${NACOS_CONFIG_FILE_EXTENSION:yaml}
+        server-addr: ${spring.cloud.nacos.discovery.server-addr}
+        namespace: ${spring.cloud.nacos.discovery.namespace}
+        group: ${spring.cloud.nacos.discovery.group}
+        cluster-name: ${spring.cloud.nacos.discovery.cluster-name}
+        username: ${spring.cloud.nacos.discovery.username}
+        password: ${spring.cloud.nacos.discovery.password}

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fastbee.scada.mapper.ScadaEchartMapper">
+    
+    <resultMap type="com.fastbee.scada.domain.ScadaEchart" id="ScadaEchartResult">
+        <result property="id"    column="id"    />
+        <result property="guid"    column="guid"    />
+        <result property="echartName"    column="echart_name"    />
+        <result property="echartType"    column="echart_type"    />
+        <result property="echartData"    column="echart_data"    />
+        <result property="echartImgae"    column="echart_imgae"    />
+        <result property="tenantId"    column="tenant_id"    />
+        <result property="tenantName"    column="tenant_name"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectScadaEchartVo">
+        select id, guid, echart_name, echart_type, echart_data, echart_imgae, tenant_id, tenant_name, create_by, create_time, update_by, update_time, del_flag from scada_echart
+    </sql>
+
+    <select id="selectScadaEchartList" parameterType="com.fastbee.scada.domain.ScadaEchart" resultMap="ScadaEchartResult">
+        <include refid="selectScadaEchartVo"/>
+        <where>  
+            <if test="guid != null  and guid != ''"> and guid = #{guid}</if>
+            <if test="echartName != null  and echartName != ''"> and echart_name like concat('%', #{echartName}, '%')</if>
+            <if test="echartType != null  and echartType != ''"> and echart_type = #{echartType}</if>
+            <if test="echartData != null  and echartData != ''"> and echart_data = #{echartData}</if>
+            <if test="echartImgae != null  and echartImgae != ''"> and echart_imgae = #{echartImgae}</if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+            <if test="tenantName != null  and tenantName != ''"> and tenant_name like concat('%', #{tenantName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectScadaEchartById" parameterType="Long" resultMap="ScadaEchartResult">
+        <include refid="selectScadaEchartVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertScadaEchart" parameterType="com.fastbee.scada.domain.ScadaEchart" useGeneratedKeys="true" keyProperty="id">
+        insert into scada_echart
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="guid != null">guid,</if>
+            <if test="echartName != null">echart_name,</if>
+            <if test="echartType != null">echart_type,</if>
+            <if test="echartData != null">echart_data,</if>
+            <if test="echartImgae != null">echart_imgae,</if>
+            <if test="tenantId != null">tenant_id,</if>
+            <if test="tenantName != null">tenant_name,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="delFlag != null">del_flag,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="guid != null">#{guid},</if>
+            <if test="echartName != null">#{echartName},</if>
+            <if test="echartType != null">#{echartType},</if>
+            <if test="echartData != null">#{echartData},</if>
+            <if test="echartImgae != null">#{echartImgae},</if>
+            <if test="tenantId != null">#{tenantId},</if>
+            <if test="tenantName != null">#{tenantName},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+         </trim>
+    </insert>
+
+    <update id="updateScadaEchart" parameterType="com.fastbee.scada.domain.ScadaEchart">
+        update scada_echart
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="guid != null">guid = #{guid},</if>
+            <if test="echartName != null">echart_name = #{echartName},</if>
+            <if test="echartType != null">echart_type = #{echartType},</if>
+            <if test="echartData != null">echart_data = #{echartData},</if>
+            <if test="echartImgae != null">echart_imgae = #{echartImgae},</if>
+            <if test="tenantId != null">tenant_id = #{tenantId},</if>
+            <if test="tenantName != null">tenant_name = #{tenantName},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteScadaEchartById" parameterType="Long">
+        delete from scada_echart where id = #{id}
+    </delete>
+
+    <delete id="deleteScadaEchartByIds" parameterType="String">
+        delete from scada_echart where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

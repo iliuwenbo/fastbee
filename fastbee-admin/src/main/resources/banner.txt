@@ -1,0 +1,5 @@
+Application Version: ${fastbee.version}
+Spring Boot Version: ${spring-boot.version}
+Nacos Server IP: ${spring.cloud.nacos.discovery.ip}
+Nacos Server Address: ${spring.cloud.nacos.config.server-addr}
+Nacos Server namespace: ${spring.cloud.nacos.config.namespace}

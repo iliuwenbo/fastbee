@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fastbee.scada.mapper.ScadaComponentMapper">
+    
+    <resultMap type="com.fastbee.scada.domain.ScadaComponent" id="ScadaComponentResult">
+        <result property="id"    column="id"    />
+        <result property="componentName"    column="component_name"    />
+        <result property="componentTemplate"    column="component_template"    />
+        <result property="componentStyle"    column="component_style"    />
+        <result property="componentScript"    column="component_script"    />
+        <result property="componentImage"    column="component_image"    />
+        <result property="tenantId"    column="tenant_id"    />
+        <result property="tenantName"    column="tenant_name"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="isShare"    column="is_share"    />
+        <result property="userId"    column="user_id"    />
+    </resultMap>
+
+    <sql id="selectScadaComponentVo">
+        select id, component_name, component_template, component_style, component_script, component_image, tenant_id, tenant_name, create_by, create_time, update_by, update_time, del_flag, is_share, user_id from scada_component
+    </sql>
+
+    <select id="selectScadaComponentList" parameterType="com.fastbee.scada.domain.ScadaComponent" resultMap="ScadaComponentResult">
+        <include refid="selectScadaComponentVo"/>
+        <where>  
+            <if test="componentName != null  and componentName != ''"> and component_name like concat('%', #{componentName}, '%')</if>
+            <if test="componentTemplate != null  and componentTemplate != ''"> and component_template = #{componentTemplate}</if>
+            <if test="componentStyle != null  and componentStyle != ''"> and component_style = #{componentStyle}</if>
+            <if test="componentScript != null  and componentScript != ''"> and component_script = #{componentScript}</if>
+            <if test="componentImage != null  and componentImage != ''"> and component_image = #{componentImage}</if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+            <if test="tenantName != null  and tenantName != ''"> and tenant_name like concat('%', #{tenantName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectScadaComponentById" parameterType="Long" resultMap="ScadaComponentResult">
+        <include refid="selectScadaComponentVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertScadaComponent" parameterType="com.fastbee.scada.domain.ScadaComponent">
+        insert into scada_component
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="componentName != null">component_name,</if>
+            <if test="componentTemplate != null">component_template,</if>
+            <if test="componentStyle != null">component_style,</if>
+            <if test="componentScript != null">component_script,</if>
+            <if test="componentImage != null">component_image,</if>
+            <if test="tenantId != null">tenant_id,</if>
+            <if test="tenantName != null">tenant_name,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="isShare != null">is_share,</if>
+            <if test="userId != null">user_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="componentName != null">#{componentName},</if>
+            <if test="componentTemplate != null">#{componentTemplate},</if>
+            <if test="componentStyle != null">#{componentStyle},</if>
+            <if test="componentScript != null">#{componentScript},</if>
+            <if test="componentImage != null">#{componentImage},</if>
+            <if test="tenantId != null">#{tenantId},</if>
+            <if test="tenantName != null">#{tenantName},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="isShare != null">#{isShare},</if>
+            <if test="userId != null">#{userId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateScadaComponent" parameterType="com.fastbee.scada.domain.ScadaComponent">
+        update scada_component
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="componentName != null">component_name = #{componentName},</if>
+            <if test="componentTemplate != null">component_template = #{componentTemplate},</if>
+            <if test="componentStyle != null">component_style = #{componentStyle},</if>
+            <if test="componentScript != null">component_script = #{componentScript},</if>
+            <if test="componentImage != null">component_image = #{componentImage},</if>
+            <if test="tenantId != null">tenant_id = #{tenantId},</if>
+            <if test="tenantName != null">tenant_name = #{tenantName},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="isShare != null">is_share = #{isShare},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteScadaComponentById" parameterType="Long">
+        delete from scada_component where id = #{id}
+    </delete>
+
+    <delete id="deleteScadaComponentByIds" parameterType="String">
+        delete from scada_component where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
